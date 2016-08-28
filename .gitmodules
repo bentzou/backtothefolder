@@ -1,0 +1,3 @@
+[submodule "harkness"]
+	path = harkness
+	url = https://github.com/bentzou/harkness.git

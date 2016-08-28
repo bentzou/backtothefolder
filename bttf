@@ -1,0 +1,150 @@
+#!/bin/bash
+
+##### Config #####
+
+CD_LEFT_KEY_SEQUENCE='\e[1;10D'
+CD_RIGHT_KEY_SEQUENCE='\e[1;10C'
+
+BTTF_HISTORY_SIZE=100
+BTTF_NO_DUPLICATES=true
+
+##### Methods #####
+
+function bttf_init () {
+   PROMPT_COMMAND="$PROMPT_COMMAND; bttf_update_history"
+   bind '"'$CD_LEFT_KEY_SEQUENCE'": "cdl\n"'
+   bind '"'$CD_RIGHT_KEY_SEQUENCE'": "cdr\n"'
+}
+
+function bttf_update_history () {
+   if (( ${#BTTF_HISTORY[@]} == 0 )); then
+      BTTF_HISTORY=(1 "$PWD")
+      return
+   fi
+
+   if [ "$(bttf_get_current_path)" != "$PWD" ]; then
+      bttf_gc
+      $BTTF_NO_DUPLICATES && bttf_remove_path_if_exists "$PWD"
+      bttf_append_path "$PWD"
+      bttf_set_index $(bttf_history_length)
+   fi
+}
+
+function bttf_history () {
+   local index
+   for index in $(seq 1 $(bttf_history_length)); do
+      printf "%3s: ${BTTF_HISTORY[$index]}\n" $index
+   done
+}
+
+function bttf_gc () {
+   if (( $(bttf_history_length) > $BTTF_HISTORY_SIZE*2 )); then
+      BTTF_HISTORY=("${BTTF_HISTORY[@]:$BTTF_HISTORY_SIZE+1}")
+   fi
+}
+
+function bttf_remove_path_if_exists () {
+   (( $# != 1 )) && return
+
+   local found
+
+   found=$(bttf_get_path_index $1)
+   (( $? != 0 )) && return
+
+   local num_before=$found
+   local num_after=$((${#BTTF_HISTORY[@]}-found-1))
+
+   TEMP=("${BTTF_HISTORY[@]:0:$num_before}")
+   if (( found < $(bttf_history_length) )); then
+      TEMP+=("${BTTF_HISTORY[@]:$((found+1)):$num_after}")
+   fi
+
+   BTTF_HISTORY=("${TEMP[@]}")
+}
+
+function bttf_get_path_index () {
+   local path_arg="$1"
+   local index
+
+   for index in $(seq $((${#BTTF_HISTORY[@]}-1)) 1); do
+      if [ "${BTTF_HISTORY[$index]}" == "$path_arg" ]; then
+         echo $index
+         return
+      fi
+   done
+   return 1
+}
+
+function bttf_append_path () {
+   (( $# != 1 )) && return 1
+   BTTF_HISTORY+=("$1")
+}
+
+function bttf_get_previous_path () {
+   local index=$(bttf_current_index)
+   (( index == 1 )) && return 1
+   echo "${BTTF_HISTORY[$index-1]}"
+}
+
+function bttf_get_next_path () {
+   local index=$(bttf_current_index)
+   (( index == $(bttf_history_length) )) && return 1
+   echo "${BTTF_HISTORY[$index+1]}"
+}
+
+function bttf_get_current_path () {
+   local index=$(bttf_current_index)
+   echo "${BTTF_HISTORY[$index]}"
+}
+
+function bttf_history_length () {
+   echo "$((${#BTTF_HISTORY[@]}-1))"
+}
+
+function bttf_set_index () {
+   (( $1 < 1 || $1 > ${#BTTF_HISTORY[@]}-1 )) && return 1
+   BTTF_HISTORY[0]=$1
+}
+
+function bttf_incr_index () {
+   bttf_set_index $(($(bttf_current_index)+1))
+}
+
+function bttf_decr_index () {
+   bttf_set_index $(($(bttf_current_index)-1))
+}
+
+function bttf_current_index () {
+   echo "${BTTF_HISTORY[0]}"
+}
+
+function cdl () {
+   local prev
+   prev="$(bttf_get_previous_path)"
+   [ $? -ne 0 ] && return
+
+   bttf_decr_index
+   builtin cd "$prev"
+}
+
+function cdr () {
+   local next
+   next="$(bttf_get_next_path)"
+   [ $? -ne 0 ] && return
+
+   bttf_incr_index
+   builtin cd "$next"
+}
+
+function bttf () {
+   (( $# != 1 )) && return 1
+
+   local index="$1"
+   ! [[ $index =~ ^[0-9]+$ ]] && return 1
+   (( index < 1 || index > $(bttf_history_length) )) && return 1
+
+   bttf_set_index "$index"
+   builtin cd "${BTTF_HISTORY[$index]}"
+}
+
+bttf_init

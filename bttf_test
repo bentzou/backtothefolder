@@ -1,0 +1,148 @@
+#!/bin/bash
+
+SOURCE_DIR="$(b=${BASH_SOURCE[0]}; dirname $(readlink $b || echo $b))"
+source "$SOURCE_DIR"/bttf
+source "$SOURCE_DIR"/harkness/harkness
+
+
+# TESTS
+function test_history_first_position () {
+   BTTF_HISTORY=(1 "first" "second" "third")
+
+   assertEquals "history length"    3        "$(bttf_history_length)"
+   assertEquals "current index"     1        "$(bttf_current_index)"
+   assertEquals "next path"         "second" "$(bttf_get_next_path)"
+   assertEquals "current path"      "first"  "$(bttf_get_current_path)"
+   assertEquals "previous path"     ""       "$(bttf_get_previous_path)"
+}
+
+function test_history_middle_position () {
+   BTTF_HISTORY=(2 "first" "second" "third")
+
+   assertEquals "history length"    3        "$(bttf_history_length)"
+   assertEquals "current index"     2        "$(bttf_current_index)"
+   assertEquals "next path"         "third"  "$(bttf_get_next_path)"
+   assertEquals "current path"      "second" "$(bttf_get_current_path)"
+   assertEquals "previous path"     "first"  "$(bttf_get_previous_path)"
+}
+
+function test_history_last_position () {
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   assertEquals "history length"    3        "$(bttf_history_length)"
+   assertEquals "current index"     3        "$(bttf_current_index)"
+   assertEquals "next path"         ""       "$(bttf_get_next_path)"
+   assertEquals "current path"      "third"  "$(bttf_get_current_path)"
+   assertEquals "previous path"     "second" "$(bttf_get_previous_path)"
+}
+
+function test_set_index () {
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   bttf_set_index 0
+   bttf_set_index -1
+   bttf_set_index 4
+
+   assertEquals "current index"     3        "$(bttf_current_index)"
+
+   bttf_set_index 2
+
+   assertEquals "current index"     2        "$(bttf_current_index)"
+}
+
+function test_get_path_index () {
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   assertEquals "path index"        1        "$(bttf_get_path_index first)"
+   assertEquals "path index"        2        "$(bttf_get_path_index second)"
+   assertEquals "path index"        3        "$(bttf_get_path_index third)"
+   assertEquals "path index"        ""       "$(bttf_get_path_index fourth)"
+}
+
+function test_append_path () {
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   bttf_append_path "fourth"
+
+   assertEquals "path index"     4        "$(bttf_get_path_index fourth)"
+}
+
+function test_remove_first_path () {
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   bttf_remove_path_if_exists "first"
+
+   assertEquals "path history"   "second third" "${BTTF_HISTORY[*]:1}"
+}
+
+function test_remove_middle_path () {
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   bttf_remove_path_if_exists "second"
+
+   assertEquals "path history"   "first third" "${BTTF_HISTORY[*]:1}"
+}
+
+function test_remove_last_path () {
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   bttf_remove_path_if_exists "third"
+
+   assertEquals "path history"   "first second" "${BTTF_HISTORY[*]:1}"
+}
+
+function test_incr_and_decr_index () {
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   bttf_incr_index
+   assertEquals "current index"     3        "$(bttf_current_index)"
+
+   bttf_decr_index
+   assertEquals "current index"     2        "$(bttf_current_index)"
+
+   bttf_decr_index
+   assertEquals "current index"     1        "$(bttf_current_index)"
+
+   bttf_decr_index
+   assertEquals "current index"     1        "$(bttf_current_index)"
+}
+
+function test_garbage_collection () {
+   BTTF_HISTORY_SIZE=3
+
+   BTTF_HISTORY=(3 "first" "second" "third")
+
+   bttf_append_path "fourth"
+   bttf_gc
+   assertEquals "history length"    4        "$(bttf_history_length)"
+
+   bttf_append_path "fifth"
+   bttf_gc
+   assertEquals "history length"    5        "$(bttf_history_length)"
+
+   bttf_append_path "sixth"
+   bttf_gc
+   assertEquals "history length"    6        "$(bttf_history_length)"
+
+   bttf_append_path "seventh"
+   bttf_gc
+   assertEquals "history length"    3        "$(bttf_history_length)"
+}
+
+
+# SPECIFY TESTS
+HARKNESS_TESTS=(
+   test_history_first_position
+   test_history_middle_position
+   test_history_last_position
+   test_set_index
+   test_get_path_index
+   test_append_path
+   test_remove_first_path
+   test_remove_middle_path
+   test_remove_last_path
+   test_incr_and_decr_index
+   test_garbage_collection
+)
+
+harkness_run_tests
