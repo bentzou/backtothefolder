@@ -13,13 +13,29 @@ Say you visit the following directories using cd.
 /Applications $>
 ```
 
-Press "Shift+Alt+Left" to cd into your previous directory:
+You can then press "Shift+Alt+Left" to cd into your previous directory:
 
 ```/tmp $>```
 
-Press "Shift+Alt+Right" to cd into the directory you visited next:
+Or press "Shift+Alt+Right" to cd into the directory you visited next:
 
 ```/Applications $>```
+
+### History
+You can access your path history by running `bttf_history`.
+
+```
+$> bttf_history
+  1: /Users/bentzou
+  2: /Users/bentzou/Desktop
+  3: /tmp
+```
+
+And jump to specific directories from your history by using `bttf`.
+```
+~ $> bttf 3
+/tmp $>
+```
 
 ## Install
 Add a line to your .bash_profile or .bashrc to source this script. Here's an example:
