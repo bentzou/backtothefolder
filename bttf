@@ -11,7 +11,7 @@ BTTF_NO_DUPLICATES=true
 ##### Methods #####
 
 function bttf_init () {
-   PROMPT_COMMAND="$PROMPT_COMMAND; bttf_update_history"
+   PROMPT_COMMAND="${PROMPT_COMMAND:-:}; bttf_update_history"
    bind '"'$CD_LEFT_KEY_SEQUENCE'": "cdl\n"'
    bind '"'$CD_RIGHT_KEY_SEQUENCE'": "cdr\n"'
 }
