@@ -17,7 +17,7 @@ function bttf_init () {
 }
 
 function bttf_update_history () {
-   if (( ${#BTTF_HISTORY[@]} == 0 )); then
+   if [ -z "${BTTF_HISTORY:-}" ] || (( ${#BTTF_HISTORY[@]} == 0 )); then
       BTTF_HISTORY=(1 "$PWD")
       return
    fi
