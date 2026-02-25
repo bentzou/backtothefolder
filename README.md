@@ -1,49 +1,75 @@
-# backtothefolder
+# bttf
 
-## Summary
-backtothefolder, or bttf, allows you to use arrows keys to navigate forward and backward through your path history.
+Browser-style back/forward navigation for your terminal.
 
-### Example
-
-Say you visit the following directories using cd.
 ```
 ~ $> cd ~/Desktop
 ~/Desktop $> cd /tmp
-/tmp $> cd /Applications/
-/Applications $>
+/tmp $> cd /Applications
+/Applications $> # press Shift+Alt+Left
+/tmp $> # press Shift+Alt+Left
+~/Desktop $> # press Shift+Alt+Right
+/tmp $>
 ```
 
-You can then press "Shift+Alt+Left" to cd into your previous directory:
+Like a browser keeps a history of pages you've visited, bttf keeps a history of directories. Go back with `cdl`, go forward with `cdr`.
 
-```/tmp $>```
+## Install
 
-Or press "Shift+Alt+Right" to cd into the directory you visited next:
+Source the script from your `.bashrc` or `.bash_profile`:
 
-```/Applications $>```
+```bash
+source ~/path/to/bttf
+```
 
-### History
-You can access your path history by running `bttf_history`.
+## How it works
+
+bttf hooks into `PROMPT_COMMAND` to record your working directory after every prompt. Directories are stored in the `BTTF_HISTORY` array, with index 0 tracking your current position. `cdl` and `cdr` decrement and increment that position and `cd` to the corresponding path.
+
+Under the hood, two readline bindings map Shift+Alt+Arrow to the shell functions `cdl` (back) and `cdr` (forward).
+
+You can also view your full history with `bttf_history` and jump to any entry with `bttf`:
 
 ```
-$> bttf_history
-  1: /Users/bentzou
-  2: /Users/bentzou/Desktop
+~ $> bttf_history
+  1: /Users/you
+  2: /Users/you/Desktop
   3: /tmp
-```
+  4: /Applications
 
-And jump to specific directories from your history by using `bttf`.
-```
 ~ $> bttf 3
 /tmp $>
 ```
 
-## Install
-Add a line to your .bash_profile or .bashrc to source this script. Here's an example:
+## Configuration
 
-```source ~/foo/bar/bttf```
+**History size** defaults to 100 entries. Change it before sourcing:
 
-## How it works
-Like a browser maintains a history of the pages you've visited, bttf keeps a history of the paths you've visited in the shell variable `$BTTF_HISTORY`. As you can go backward and forward in the browser, you can use keyboard shortcuts to go backward and forward through your path history.
+```bash
+BTTF_HISTORY_SIZE=50
+source ~/path/to/bttf
+```
+
+**Duplicate removal** is on by default — revisiting a directory moves it to the end of the history rather than creating a second entry. To allow duplicates:
+
+```bash
+BTTF_NO_DUPLICATES=false
+```
+
+**Key sequences** default to Shift+Alt+Arrow (`\e[1;10D` / `\e[1;10C`). If your terminal sends something different, override them before sourcing:
+
+```bash
+CD_LEFT_KEY_SEQUENCE='\e[1;10D'
+CD_RIGHT_KEY_SEQUENCE='\e[1;10C'
+source ~/path/to/bttf
+```
+
+## Tests
+
+```bash
+bash bttf_test
+```
 
 ## Supported Bash versions
-3.2-4.0
+
+3.2–4.0
