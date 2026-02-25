@@ -48,7 +48,7 @@ function bttf_remove_path_if_exists () {
 
    local found
 
-   found=$(bttf_get_path_index $1)
+   found=$(bttf_get_path_index "$1")
    (( $? != 0 )) && return
 
    local num_before=$found
