@@ -39,7 +39,7 @@ function bttf_history () {
 
 function bttf_gc () {
    if (( $(bttf_history_length) > $BTTF_HISTORY_SIZE*2 )); then
-      BTTF_HISTORY=("${BTTF_HISTORY[@]:$BTTF_HISTORY_SIZE+1}")
+      BTTF_HISTORY=("${BTTF_HISTORY[0]}" "${BTTF_HISTORY[@]:$((BTTF_HISTORY_SIZE+1))}")
    fi
 }
 
