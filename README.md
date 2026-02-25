@@ -56,11 +56,11 @@ source ~/path/to/bttf
 BTTF_NO_DUPLICATES=false
 ```
 
-**Key sequences** default to Shift+Alt+Arrow (`\e[1;10D` / `\e[1;10C`). If your terminal sends something different, override them before sourcing:
+**Key sequences** are auto-detected based on your terminal. iTerm uses Shift+Meta+Arrow (`\e[1;10D` / `\e[1;10C`), while other terminals use Shift+Alt+Arrow (`\e[1;4D` / `\e[1;4C`). If your terminal sends something different, override them before sourcing:
 
 ```bash
-BTTF_CD_LEFT_KEY_SEQUENCE='\e[1;10D'
-BTTF_CD_RIGHT_KEY_SEQUENCE='\e[1;10C'
+BTTF_CD_LEFT_KEY_SEQUENCE='\e[1;4D'
+BTTF_CD_RIGHT_KEY_SEQUENCE='\e[1;4C'
 source ~/path/to/bttf
 ```
 
