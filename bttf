@@ -54,7 +54,7 @@ function bttf_remove_path_if_exists () {
    local num_before=$found
    local num_after=$((${#BTTF_HISTORY[@]}-found-1))
 
-   TEMP=("${BTTF_HISTORY[@]:0:$num_before}")
+   local TEMP=("${BTTF_HISTORY[@]:0:$num_before}")
    if (( found < $(bttf_history_length) )); then
       TEMP+=("${BTTF_HISTORY[@]:$((found+1)):$num_after}")
    fi
