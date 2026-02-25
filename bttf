@@ -33,7 +33,7 @@ function bttf_update_history () {
 function bttf_history () {
    local index
    for index in $(seq 1 $(bttf_history_length)); do
-      printf "%3s: ${BTTF_HISTORY[$index]}\n" $index
+      printf "%3s: %s\n" "$index" "${BTTF_HISTORY[$index]}"
    done
 }
 
