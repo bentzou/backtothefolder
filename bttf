@@ -2,8 +2,8 @@
 
 ##### Config #####
 
-CD_LEFT_KEY_SEQUENCE='\e[1;10D'
-CD_RIGHT_KEY_SEQUENCE='\e[1;10C'
+BTTF_CD_LEFT_KEY_SEQUENCE='\e[1;10D'
+BTTF_CD_RIGHT_KEY_SEQUENCE='\e[1;10C'
 
 BTTF_HISTORY_SIZE=100
 BTTF_NO_DUPLICATES=true
@@ -12,8 +12,8 @@ BTTF_NO_DUPLICATES=true
 
 function bttf_init () {
    PROMPT_COMMAND="${PROMPT_COMMAND:-:}; bttf_update_history"
-   bind '"'$CD_LEFT_KEY_SEQUENCE'": "cdl\n"'
-   bind '"'$CD_RIGHT_KEY_SEQUENCE'": "cdr\n"'
+   bind '"'$BTTF_CD_LEFT_KEY_SEQUENCE'": "cdl\n"'
+   bind '"'$BTTF_CD_RIGHT_KEY_SEQUENCE'": "cdr\n"'
 }
 
 function bttf_update_history () {

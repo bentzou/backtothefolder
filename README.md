@@ -59,8 +59,8 @@ BTTF_NO_DUPLICATES=false
 **Key sequences** default to Shift+Alt+Arrow (`\e[1;10D` / `\e[1;10C`). If your terminal sends something different, override them before sourcing:
 
 ```bash
-CD_LEFT_KEY_SEQUENCE='\e[1;10D'
-CD_RIGHT_KEY_SEQUENCE='\e[1;10C'
+BTTF_CD_LEFT_KEY_SEQUENCE='\e[1;10D'
+BTTF_CD_RIGHT_KEY_SEQUENCE='\e[1;10C'
 source ~/path/to/bttf
 ```
 
